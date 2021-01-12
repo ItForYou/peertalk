@@ -1,11 +1,13 @@
 package co.kr.itforone.peertalk.contact_pkg;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,13 +16,14 @@ import java.util.ArrayList;
 
 import co.kr.itforone.peertalk.R;
 
-public class ContactListAdapter extends RecyclerView.Adapter<RecyclerViewholder> {
-
+public class ContactListAdapter extends BaseAdapter {
+    Context context;
     ArrayList<itemModel> list;
     ArrayList<Integer> flg_chks;
     int chkall =0;
-    public ContactListAdapter(ArrayList<itemModel> list){
+    public ContactListAdapter(Context context, ArrayList<itemModel> list){
         this.list = list;
+        this.context = context;
         flg_chks = new ArrayList<Integer>();
         for(int i=0; i<list.size(); i++){
             flg_chks.add(0);
@@ -123,7 +126,22 @@ public class ContactListAdapter extends RecyclerView.Adapter<RecyclerViewholder>
     }
 
     @Override
-    public int getItemCount() {
+    public int getCount() {
         return list.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return list.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        return null;
     }
 }

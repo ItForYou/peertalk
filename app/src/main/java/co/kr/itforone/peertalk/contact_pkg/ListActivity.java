@@ -78,7 +78,6 @@ public class ListActivity extends AppCompatActivity {
         }
 
         LinearLayoutManager manager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
-        activityListBinding.listview.setLayoutManager(manager);
         contactListAdapter = new ContactListAdapter(list);
         activityListBinding.listview.setAdapter(contactListAdapter);
 
