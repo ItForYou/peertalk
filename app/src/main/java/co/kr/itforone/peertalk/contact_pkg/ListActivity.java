@@ -6,8 +6,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
@@ -40,6 +42,9 @@ public class ListActivity extends AppCompatActivity {
         String [] selectionArgs = null;
         String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME+" COLLATE LOCALIZED ASC";
         ArrayList<itemModel> list = new ArrayList<itemModel>();
+        ArrayList<String> list_names = new ArrayList<String>();
+        ArrayList<String> list_numbers = new ArrayList<String>();
+
         String before_name="", before_number="";
         Cursor cursor = getApplicationContext().getContentResolver().query(uri,projection,null,selectionArgs,sortOrder);
         if(cursor.moveToFirst()){
@@ -60,7 +65,8 @@ public class ListActivity extends AppCompatActivity {
                 before_name = name;
 
                 list.add(new itemModel(number,name,struri));
-
+                list_names.add(name);
+                list_numbers.add(number);
                 /*tv_total+= cursor.getString(0);
                 tv_total+= "\n";
                 tv_total+= cursor.getString(1);
@@ -69,6 +75,9 @@ public class ListActivity extends AppCompatActivity {
                 tv_total+= "\n";*/
                 Log.d("cursor_1",number);
                 Log.d("cursor_2",name);
+
+
+
                // Log.d("cursor_3",struri);
 
             }while (cursor.moveToNext());
@@ -79,6 +88,7 @@ public class ListActivity extends AppCompatActivity {
 
         LinearLayoutManager manager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         contactListAdapter = new ContactListAdapter(list);
+        activityListBinding.listview.setLayoutManager(manager);
         activityListBinding.listview.setAdapter(contactListAdapter);
 
     }
@@ -92,8 +102,24 @@ public class ListActivity extends AppCompatActivity {
 
         ArrayList<itemModel> checkedlist = contactListAdapter.getslclist();
 
+        ArrayList<String> namelist = new ArrayList<String>();
+        ArrayList<String> numberlist = new ArrayList<String>();
+
+        for (itemModel item:checkedlist) {
+
+            namelist.add(item.getName());
+            numberlist.add(item.getNumber());
+
+        }
+
+        String temp_names = TextUtils.join("|", namelist);
+        String temp_numbers = TextUtils.join("|", numberlist);
+
         Intent intent = new Intent();
         intent.putExtra("size", checkedlist.size());
+        intent.putExtra("names", temp_names);
+        intent.putExtra("numbers", temp_numbers);
+
         setResult(RESULT_OK,intent);
         finish();
     }

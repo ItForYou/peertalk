@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,14 +17,13 @@ import java.util.ArrayList;
 
 import co.kr.itforone.peertalk.R;
 
-public class ContactListAdapter extends BaseAdapter {
+public class ContactListAdapter extends RecyclerView.Adapter<RecyclerViewholder>{
     Context context;
     ArrayList<itemModel> list;
     ArrayList<Integer> flg_chks;
     int chkall =0;
-    public ContactListAdapter(Context context, ArrayList<itemModel> list){
+    public ContactListAdapter(ArrayList<itemModel> list){
         this.list = list;
-        this.context = context;
         flg_chks = new ArrayList<Integer>();
         for(int i=0; i<list.size(); i++){
             flg_chks.add(0);
@@ -93,6 +93,11 @@ public class ContactListAdapter extends BaseAdapter {
 
     }
 
+    @Override
+    public int getItemCount() {
+        return list.size();
+    }
+
     public void selectAll(){
         if(chkall==0) {
             for (int i = 0; i < flg_chks.size(); i++) {
@@ -123,25 +128,5 @@ public class ContactListAdapter extends BaseAdapter {
 
         return slc_list;
 
-    }
-
-    @Override
-    public int getCount() {
-        return list.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return list.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        return null;
     }
 }

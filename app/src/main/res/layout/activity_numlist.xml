@@ -2,57 +2,75 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-   <data>
-   <variable
-       name="listmain"
-       type="co.kr.itforone.peertalk.contact_pkg.ListActivity" />
+    <data>
 
-   </data>
-   <LinearLayout
-       android:layout_width="match_parent"
-       android:layout_height="match_parent"
-       android:orientation="vertical"
-       android:weightSum="1"
-      >
-   <LinearLayout
-       android:layout_width="match_parent"
-       android:layout_height="0dp"
-       android:layout_weight="0.06"
-       android:orientation="horizontal"
-       android:weightSum="1"
-       android:background="@drawable/list_backgroundcolor"
-       >
-      <TextView
-          android:layout_width="0dp"
-          android:layout_height="match_parent"
-          android:layout_weight="0.5"
-          android:gravity="center"
-          android:textColor="#fff"
-          android:text="전체선택"
-          android:textSize="15dp"
-          android:onClick="chkall"
-         />
-      <TextView
-          android:layout_width="0dp"
-          android:layout_height="match_parent"
-          android:layout_weight="0.5"
-          android:textColor="#fff"
-          android:text="확인"
-          android:textSize="15dp"
-          android:gravity="center"
-          android:onClick="list_submit"
-          />
-   </LinearLayout>
-   <EditText
-       android:layout_width="match_parent"
-       android:layout_height="0dp"
-       android:layout_weight="0.06"
-       />
-   <ListView
-       android:id="@+id/listview"
-       android:layout_width="match_parent"
-       android:layout_height="0dp"
-       android:layout_weight="0.88"
-      />
-   </LinearLayout>
+        <variable
+            name="listmain"
+            type="co.kr.itforone.peertalk.contact_pkg.ListActivity" />
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#fff"
+        android:weightSum="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.06"
+            android:background="@drawable/list_backgroundcolor"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:gravity="center"
+                android:onClick="chkall"
+                android:text="전체선택"
+                android:textColor="#fff"
+                android:textSize="15dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:gravity="center"
+                android:onClick="list_submit"
+                android:text="확인"
+                android:textColor="#fff"
+                android:textSize="15dp" />
+        </LinearLayout>
+     <!--   <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.01"
+            />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:background="@drawable/boder_round"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:drawableLeft="@drawable/ic_search"
+                android:paddingLeft="20dp"
+                android:textColor="#000"
+                 />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.01"
+            />-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/listview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.94" />
+    </LinearLayout>
 </layout>
