@@ -3,4 +3,5 @@
     <string name="home">http://itforone.co.kr/~peertalk/</string>
     <string name="personal">http://itforone.co.kr/~peertalk/bbs/per_contact.php</string>
     <string name="login">http://itforone.co.kr/~peertalk/bbs/login.php</string>
+    <string name="all">http://itforone.co.kr/~peertalk/bbs/all_contact.php</string>
 </resources>

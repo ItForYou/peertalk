@@ -18,7 +18,7 @@ public class Viewmanager extends WebViewClient {
 
             view.loadUrl(url);
 
-        return true;
+        return false;
     }
 
     @Override

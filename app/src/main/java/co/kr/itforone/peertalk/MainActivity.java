@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     static final int PERMISSION_REQUEST_CODE = 1;
     static final int RECEIVED_CONTATSLIST = 2;
     WebSettings settings;
+    private long backPrssedTime = 0;
 
     private boolean hasPermissions(String[] permissions){
         // 퍼미션 확인해
@@ -98,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
+        settings.setTextZoom(100);
 
         activityMainBinding.mwebview.addJavascriptInterface(new WebviewJavainterface(this),"Android");
         activityMainBinding.mwebview.setWebViewClient(new Viewmanager(this));
@@ -106,6 +108,24 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding.mwebview.loadUrl(getString(R.string.login));
 
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        long tempTime = System.currentTimeMillis();
+        long intervalTime = tempTime - backPrssedTime;
+
+        if(!activityMainBinding.mwebview.canGoBack() || activityMainBinding.mwebview.getUrl().contains("all_contact") ) {
+            if (0 <= intervalTime && 2000 >= intervalTime) {
+                finish();
+            } else {
+                backPrssedTime = tempTime;
+                Toast.makeText(getApplicationContext(), "한번 더 뒤로가기 누를시 앱이 종료됩니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else {
+            activityMainBinding.mwebview.goBack();
+        }
     }
 
     @Override
@@ -181,4 +201,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
 }

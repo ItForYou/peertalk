@@ -86,9 +86,10 @@ public class ListActivity extends AppCompatActivity {
             Toast.makeText(this, "fail", Toast.LENGTH_SHORT).show();
         }
 
-        LinearLayoutManager manager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
-        contactListAdapter = new ContactListAdapter(list);
-        activityListBinding.listview.setLayoutManager(manager);
+
+        contactListAdapter = new ContactListAdapter(this,list);
+        //LinearLayoutManager manager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
+        //activityListBinding.listview.setLayoutManager(manager);
         activityListBinding.listview.setAdapter(contactListAdapter);
 
     }

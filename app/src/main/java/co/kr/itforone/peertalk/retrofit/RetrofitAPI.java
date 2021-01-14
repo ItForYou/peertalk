@@ -8,7 +8,7 @@ import retrofit2.http.QueryMap;
 
 public interface RetrofitAPI {
 
-    @GET("upload_contacts.php")
+    @GET("bbs/upload_contacts.php")
     Call<responseModel>  getList(
             @QueryMap Map<String,String> option
     );

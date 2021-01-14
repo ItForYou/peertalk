@@ -17,12 +17,13 @@ import java.util.ArrayList;
 
 import co.kr.itforone.peertalk.R;
 
-public class ContactListAdapter extends RecyclerView.Adapter<RecyclerViewholder>{
+public class ContactListAdapter extends BaseAdapter{
     Context context;
     ArrayList<itemModel> list;
     ArrayList<Integer> flg_chks;
     int chkall =0;
-    public ContactListAdapter(ArrayList<itemModel> list){
+    private RecyclerViewholder viewholder;
+    public ContactListAdapter(Context context, ArrayList<itemModel> list){
         this.list = list;
         flg_chks = new ArrayList<Integer>();
         for(int i=0; i<list.size(); i++){
@@ -30,6 +31,7 @@ public class ContactListAdapter extends RecyclerView.Adapter<RecyclerViewholder>
         }
     }
 
+/*
     @NonNull
     @Override
     public RecyclerViewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -97,7 +99,7 @@ public class ContactListAdapter extends RecyclerView.Adapter<RecyclerViewholder>
     public int getItemCount() {
         return list.size();
     }
-
+*/
     public void selectAll(){
         if(chkall==0) {
             for (int i = 0; i < flg_chks.size(); i++) {
@@ -128,5 +130,33 @@ public class ContactListAdapter extends RecyclerView.Adapter<RecyclerViewholder>
 
         return slc_list;
 
+    }
+
+    @Override
+    public int getCount() {
+        return list.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return list.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        /*RecyclerViewholder viewholder;
+        if(convertView == null) {
+            iewholder = new RecyclerViewholder();
+        }
+        else{
+            viewholder = (RecyclerViewholder)convertView;
+        }*/
+
+        return convertView;
     }
 }
