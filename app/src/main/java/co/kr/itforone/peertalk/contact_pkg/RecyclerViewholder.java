@@ -31,8 +31,11 @@ public class RecyclerViewholder extends RecyclerView.ViewHolder {
         callbt = itemView.findViewById(R.id.callbt);
 
     }
+
     public Drawable getdrawble(){
+
         return view.getContext().getDrawable(R.drawable.lnb_mb_noimg);
+
     }
 
 

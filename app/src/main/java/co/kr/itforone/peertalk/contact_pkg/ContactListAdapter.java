@@ -149,6 +149,22 @@ public class ContactListAdapter extends BaseAdapter{
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
+        if (convertView == null) {
+
+            convertView = LayoutInflater.from(context).inflate(R.layout.list_items, parent, false);
+
+            viewholder = new RecyclerViewholder(convertView);
+
+            convertView.setTag(viewholder);
+
+        } else {
+
+            viewholder = (RecyclerViewholder) convertView.getTag();
+
+        }
+
+
         /*RecyclerViewholder viewholder;
         if(convertView == null) {
             iewholder = new RecyclerViewholder();
