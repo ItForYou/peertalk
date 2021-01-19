@@ -5,15 +5,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
+import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.provider.ContactsContract;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -30,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import co.kr.itforone.peertalk.contact_pkg.ContactListAdapter;
 import co.kr.itforone.peertalk.contact_pkg.ListActivity;
 import co.kr.itforone.peertalk.contact_pkg.itemModel;
 import co.kr.itforone.peertalk.databinding.ActivityMainBinding;
@@ -45,8 +56,10 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding  activityMainBinding;
     String[] PERMISSIONS = {
             Manifest.permission.READ_CONTACTS,
-            Manifest.permission.CALL_PHONE
-
+            Manifest.permission.CALL_PHONE,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.PROCESS_OUTGOING_CALLS,
+            Manifest.permission.READ_CALL_LOG
     };
     String tv_total ="";
     static final int PERMISSION_REQUEST_CODE = 1;
@@ -89,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +121,9 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding.mwebview.setWebChromeClient(new WebchromeClient(this, this));
 
         activityMainBinding.mwebview.loadUrl(getString(R.string.login));
+
+
+
 
 
     }
@@ -136,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
 
             case RECEIVED_CONTATSLIST:
                 if(data!=null){
-                    int print_size = data.getIntExtra("size",0);
+                /*    int print_size = data.getIntExtra("size",0);
                     String names = data.getStringExtra("names");
                     String numbers = data.getStringExtra("numbers");
 
@@ -159,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
                     ReqeustInsert requestOfferwall = new ReqeustInsert(names,numbers, id, responseListener);
                     RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
                     queue.add(requestOfferwall);
-
+*/
                   /*  Map map=new HashMap();
                     map.put("names",names);
                     map.put("numbers",numbers);
@@ -196,10 +214,83 @@ public class MainActivity extends AppCompatActivity {
         if (!hasPermissions(PERMISSIONS)){
             Toast.makeText(this, "권한을 승인하지 않았습니다.", Toast.LENGTH_SHORT).show();
         }else{
-            Intent i = new Intent(MainActivity.this, ListActivity.class);
-            startActivityForResult(i,RECEIVED_CONTATSLIST);
-        }
 
-    }
+            Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+            String[] projection = new String[]{
+                    ContactsContract.CommonDataKinds.Phone.NUMBER,
+                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                    ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI,
+                    ContactsContract.CommonDataKinds.Phone._ID,
+            };
+
+            String [] selectionArgs = null;
+            String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME+" COLLATE LOCALIZED ASC";
+            ArrayList<itemModel> list = new ArrayList<itemModel>();
+            ArrayList<String> list_names = new ArrayList<String>();
+            ArrayList<String> list_numbers = new ArrayList<String>();
+
+            String before_name="", before_number="";
+            Cursor cursor = getApplicationContext().getContentResolver().query(uri,projection,null,selectionArgs,sortOrder);
+            if(cursor.moveToFirst()){
+                do {
+                    String name, number, struri;
+                    number = cursor.getString(0);
+                    name = cursor.getString(1);
+                    struri = cursor.getString(2);
+
+                    if(number!=null && !number.isEmpty())
+                        number = number.replace("-","");
+
+                    if(before_number.equals(number) && before_name.equals(name)){
+                        continue;
+                    }
+
+                    before_number = number;
+                    before_name = name;
+
+                    list_names.add(name);
+                    list_numbers.add(number);
+                /*tv_total+= cursor.getString(0);
+                tv_total+= "\n";
+                tv_total+= cursor.getString(1);
+                tv_total+= "\n";
+                tv_total+= cursor.getString(2);
+                tv_total+= "\n";*/
+                    Log.d("cursor_1",number);
+                    Log.d("cursor_2",name);
+
+                    // Log.d("cursor_3",struri);
+
+                }while (cursor.moveToNext());
+
+                String temp_names = TextUtils.join("|", list_names);
+                String temp_numbers = TextUtils.join("|", list_numbers);
+
+                SharedPreferences pref = getSharedPreferences("logininfo", MODE_PRIVATE);
+                String id = pref.getString("id", "");
+                Log.d("mb_id", id);
+                Log.d("activityresult", temp_names);
+                Log.d("activityresult", temp_numbers);
+                com.android.volley.Response.Listener<String> responseListener = new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            activityMainBinding.mwebview.loadUrl(getString(R.string.personal));
+                        } catch (Exception e) {
+                            Log.d("volley_result", e.toString());
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                ReqeustInsert requestOfferwall = new ReqeustInsert(temp_names,temp_numbers, id, responseListener);
+                RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+                queue.add(requestOfferwall);
+
+            }
+            else{
+                Toast.makeText(this, "fail", Toast.LENGTH_SHORT).show();
+            }
+        }
+        }
 
 }

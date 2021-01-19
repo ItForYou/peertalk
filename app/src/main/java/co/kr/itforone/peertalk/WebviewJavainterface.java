@@ -26,6 +26,7 @@ public class WebviewJavainterface {
     }
 
 
+
     @JavascriptInterface
     public void setLogininfo(String id,String password) {
         // Toast.makeText(mainActivity.getApplicationContext(),"setlogin",Toast.LENGTH_LONG).show();

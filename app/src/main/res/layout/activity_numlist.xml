@@ -67,7 +67,7 @@
             android:layout_height="0dp"
             android:layout_weight="0.01"
             />-->
-        <ListView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/listview"
             android:layout_width="match_parent"
             android:layout_height="0dp"

@@ -1,14 +1,11 @@
 package co.kr.itforone.peertalk.contact_pkg;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,13 +14,12 @@ import java.util.ArrayList;
 
 import co.kr.itforone.peertalk.R;
 
-public class ContactListAdapter extends BaseAdapter{
-    Context context;
+public class ContactListAdapter extends RecyclerView.Adapter<RecyclerViewholder> {
+
     ArrayList<itemModel> list;
     ArrayList<Integer> flg_chks;
     int chkall =0;
-    private RecyclerViewholder viewholder;
-    public ContactListAdapter(Context context, ArrayList<itemModel> list){
+    public ContactListAdapter(ArrayList<itemModel> list){
         this.list = list;
         flg_chks = new ArrayList<Integer>();
         for(int i=0; i<list.size(); i++){
@@ -31,7 +27,6 @@ public class ContactListAdapter extends BaseAdapter{
         }
     }
 
-/*
     @NonNull
     @Override
     public RecyclerViewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -45,61 +40,56 @@ public class ContactListAdapter extends BaseAdapter{
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewholder holder, int position) {
 
-                    if(list.get(position).uri!=null && !list.get(position).getUri().isEmpty()) {
-                        holder.imgprofile.setImageURI(Uri.parse(list.get(position).getUri()));
-                    }
-                    else {
-                        holder.imgprofile.setImageDrawable(holder.getdrawble());
-                    }
-                    holder.name.setText(list.get(position).getName());
-                    holder.number.setText(list.get(position).getNumber());
+        if(list.get(position).uri!=null && !list.get(position).getUri().isEmpty()) {
+            holder.imgprofile.setImageURI(Uri.parse(list.get(position).getUri()));
+        }
+        else {
+            holder.imgprofile.setImageDrawable(holder.getdrawble());
+        }
+        holder.name.setText(list.get(position).getName());
+        holder.number.setText(list.get(position).getNumber());
 
+        if(flg_chks.get(position)==0) {
+            holder.name.setTextColor(Color.parseColor("#000000"));
+            holder.number.setTextColor(Color.parseColor("#000000"));
+            holder.itemlayout.setBackgroundColor(Color.parseColor("#ffffff"));
+        }
+        else{
+            holder.name.setTextColor(Color.parseColor("#ffffff"));
+            holder.number.setTextColor(Color.parseColor("#ffffff"));
+            holder.itemlayout.setBackgroundColor(Color.parseColor("#888888"));
+        }
+
+        holder.itemlayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(flg_chks.size()>position){
                     if(flg_chks.get(position)==0) {
+                        flg_chks.set(position, 1);
+                        holder.name.setTextColor(Color.parseColor("#ffffff"));
+                        holder.number.setTextColor(Color.parseColor("#ffffff"));
+                        holder.itemlayout.setBackgroundColor(Color.parseColor("#888888"));
+
+                    }
+                    else{
+                        flg_chks.set(position, 0);
                         holder.name.setTextColor(Color.parseColor("#000000"));
                         holder.number.setTextColor(Color.parseColor("#000000"));
                         holder.itemlayout.setBackgroundColor(Color.parseColor("#ffffff"));
                     }
-                    else{
-                        holder.name.setTextColor(Color.parseColor("#ffffff"));
-                        holder.number.setTextColor(Color.parseColor("#ffffff"));
-                        holder.itemlayout.setBackgroundColor(Color.parseColor("#888888"));
-                    }
-
-                    holder.itemlayout.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if(flg_chks.size()>position){
-                                if(flg_chks.get(position)==0) {
-                                    flg_chks.set(position, 1);
-                                    holder.name.setTextColor(Color.parseColor("#ffffff"));
-                                    holder.number.setTextColor(Color.parseColor("#ffffff"));
-                                    holder.itemlayout.setBackgroundColor(Color.parseColor("#888888"));
-
-                                }
-                                else{
-                                    flg_chks.set(position, 0);
-                                    holder.name.setTextColor(Color.parseColor("#000000"));
-                                    holder.number.setTextColor(Color.parseColor("#000000"));
-                                    holder.itemlayout.setBackgroundColor(Color.parseColor("#ffffff"));
-                                }
-                            }
-                        }
-                    });
-                    holder.callbt.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent i = new Intent(Intent.ACTION_VIEW,Uri.parse("tel:"+list.get(position).getNumber()));
-                            v.getContext().startActivity(i);
-                        }
-                    });
+                }
+            }
+        });
+        holder.callbt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(Intent.ACTION_VIEW,Uri.parse("tel:"+list.get(position).getNumber()));
+                v.getContext().startActivity(i);
+            }
+        });
 
     }
 
-    @Override
-    public int getItemCount() {
-        return list.size();
-    }
-*/
     public void selectAll(){
         if(chkall==0) {
             for (int i = 0; i < flg_chks.size(); i++) {
@@ -133,46 +123,7 @@ public class ContactListAdapter extends BaseAdapter{
     }
 
     @Override
-    public int getCount() {
+    public int getItemCount() {
         return list.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return list.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-        if (convertView == null) {
-
-            convertView = LayoutInflater.from(context).inflate(R.layout.list_items, parent, false);
-
-            viewholder = new RecyclerViewholder(convertView);
-
-            convertView.setTag(viewholder);
-
-        } else {
-
-            viewholder = (RecyclerViewholder) convertView.getTag();
-
-        }
-
-
-        /*RecyclerViewholder viewholder;
-        if(convertView == null) {
-            iewholder = new RecyclerViewholder();
-        }
-        else{
-            viewholder = (RecyclerViewholder)convertView;
-        }*/
-
-        return convertView;
     }
 }
