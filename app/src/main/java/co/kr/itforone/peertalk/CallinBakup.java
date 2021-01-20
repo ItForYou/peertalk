@@ -25,23 +25,22 @@ import androidx.appcompat.app.AlertDialog;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.content.Context.WINDOW_SERVICE;
 
-public class Callin extends BroadcastReceiver {
+public class CallinBakup extends BroadcastReceiver {
     WindowManager.LayoutParams params;
     private WindowManager windowManager;
     protected View rootView;
     private Context context_public;
     Intent serviceIntent;
-    public static int incomming_flg =0;
     @Override
     public void onReceive(Context context, Intent intent) {
         context_public = context;
         String action = intent.getAction();
         Log.d("test_call", action);
-        serviceIntent = new Intent(context_public,DialogActivity.class);
+        serviceIntent = new Intent(context,DialogActivity.class);
         serviceIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         if(action.equals(Intent.ACTION_NEW_OUTGOING_CALL)){
-            incomming_flg =0;
+
             String savedNumber = intent.getExtras().getString("android.intent.extra.PHONE_NUMBER");
             Log.d("test_call", "outcall_"+savedNumber);
 
@@ -55,14 +54,13 @@ public class Callin extends BroadcastReceiver {
             context_public.startActivity(serviceIntent);
 
         }
+
+
         else {
 
-            TelephonyManager telephonyManager = (TelephonyManager) context_public.getSystemService(Context.TELEPHONY_SERVICE);
+            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             String phoneNumber_extra = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
             if (phoneNumber_extra != null && !phoneNumber_extra.isEmpty()) {
-              /*  serviceIntent.putExtra("number", phoneNumber_extra);
-                erviceIntent.putExtra("type", "수신 중 ...");
-                context_public.startActivity(serviceIntent);*/
                 telephonyManager.listen(new PhoneStateListener() {
                     @Override
                     public void onCallStateChanged(int state, String phoneNumber) {
@@ -71,17 +69,12 @@ public class Callin extends BroadcastReceiver {
                         switch (state) {
 
                             case TelephonyManager.CALL_STATE_RINGING:
-                                if(incomming_flg != 1) {
-                                    incomming_flg = 1;
-                                    Toast.makeText(context_public.getApplicationContext(), "현재 " + phoneNumber_extra + " 번호로 통화가 오는중입니다.", Toast.LENGTH_LONG).show();
-                                    Log.d("test_call", "ringing");
-                                    serviceIntent = new Intent(context_public,DialogActivity.class);
-                                    serviceIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                                    serviceIntent.putExtra("number", phoneNumber_extra);
-                                    serviceIntent.putExtra("type", "수신 중 ...");
-                                    context_public.startActivity(serviceIntent);
-                                    Log.d("test_call", "ringing2");
-                                }
+                                Toast.makeText(context_public.getApplicationContext(), "현재 " + phoneNumber_extra + " 번호로 통화가 오는중입니다.", Toast.LENGTH_LONG).show();
+                                Log.d("test_call", "ringing");
+                                serviceIntent.putExtra("number", phoneNumber_extra);
+                                serviceIntent.putExtra("type", "수신 중 ...");
+                                context_public.startActivity(serviceIntent);
+                                Log.d("test_call", "ringing2");
                                 break;
                             case TelephonyManager.CALL_STATE_IDLE:
                                 Toast.makeText(context_public.getApplicationContext(), "현재 " + phoneNumber_extra + " 번호로 통화가 종료되었습니다.", Toast.LENGTH_LONG).show();

@@ -59,7 +59,9 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.CALL_PHONE,
             Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.PROCESS_OUTGOING_CALLS,
-            Manifest.permission.READ_CALL_LOG
+            Manifest.permission.READ_CALL_LOG,
+            Manifest.permission.SYSTEM_ALERT_WINDOW,
+
     };
     String tv_total ="";
     static final int PERMISSION_REQUEST_CODE = 1;
@@ -122,8 +124,10 @@ public class MainActivity extends AppCompatActivity {
 
         activityMainBinding.mwebview.loadUrl(getString(R.string.login));
 
+        /*Intent i = new Intent(MainActivity.this, DialogActivity.class);
+        startActivity(i);
 
-
+*/
 
 
     }
