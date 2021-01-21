@@ -61,7 +61,8 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.PROCESS_OUTGOING_CALLS,
             Manifest.permission.READ_CALL_LOG,
             Manifest.permission.SYSTEM_ALERT_WINDOW,
-
+            Manifest.permission.FOREGROUND_SERVICE,
+            Manifest.permission.MANAGE_OWN_CALLS
     };
     String tv_total ="";
     static final int PERMISSION_REQUEST_CODE = 1;
@@ -111,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
+        Log.d("service_call","DIALOGON");
 
         settings = activityMainBinding.mwebview.getSettings();
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
@@ -128,6 +130,8 @@ public class MainActivity extends AppCompatActivity {
         startActivity(i);
 
 */
+
+
 
 
     }

@@ -33,13 +33,6 @@ public class Calling extends Service {
     public void onCreate() {
         super.onCreate();
 
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        Display display = windowManager.getDefaultDisplay();
-        int width = (int) (display.getWidth() * 0.8); //Display 사이즈의 90%
-
-
-        Log.d("service_test",String.valueOf(width));
-
 
     }
 
@@ -52,6 +45,7 @@ public class Calling extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
+
 
 
 

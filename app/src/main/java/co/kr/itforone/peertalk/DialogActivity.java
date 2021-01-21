@@ -1,9 +1,12 @@
 package co.kr.itforone.peertalk;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Window;
@@ -19,10 +22,12 @@ import org.w3c.dom.Text;
 public class DialogActivity  extends Activity {
     String number,type;
     TextView tv_number, tv_name, tv_type;
+    private BroadcastReceiver broadcastReceiver;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d("service_call","DIALOGON");
         super.onCreate(savedInstanceState);
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         Intent i = getIntent();
         if(i!=null) {
@@ -59,7 +64,7 @@ public class DialogActivity  extends Activity {
 
     @Override
     public void onBackPressed() {
-        //finish();
-        finishAndRemoveTask();
+        finish();
+        //finishAndRemoveTask();
     }
 }

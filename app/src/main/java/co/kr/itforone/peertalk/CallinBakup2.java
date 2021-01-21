@@ -21,7 +21,6 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -31,7 +30,7 @@ import androidx.core.app.NotificationCompat;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.content.Context.WINDOW_SERVICE;
 
-public class Callin extends BroadcastReceiver {
+public class CallinBakup2 extends BroadcastReceiver {
 
     WindowManager.LayoutParams params;
     private WindowManager windowManager;
@@ -64,19 +63,12 @@ public class Callin extends BroadcastReceiver {
 //            sendbroad.setAction("Test_alert"); //"aaa"라는 액션 방송을 듣는 모든 리시버 반응해라.
 //            context.sendBroadcast(sendbroad);
 
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-                NotificationSomethings(savedNumber);
-            }
-            else{
-                serviceIntent.putExtra("number", savedNumber);
-                serviceIntent.putExtra("type", "발신 중 ...");
-                context_public.startActivity(serviceIntent);
-            }
+
 //            serviceIntent.putExtra("number", savedNumber);
 //            serviceIntent.putExtra("type", "발신 중 ...");
 //            context_public.startActivity(serviceIntent);
 
-
+            NotificationSomethings(savedNumber);
 
         }
 
@@ -94,18 +86,11 @@ public class Callin extends BroadcastReceiver {
                         switch (state) {
 
                             case TelephonyManager.CALL_STATE_RINGING:
-                            //    Toast.makeText(context_public.getApplicationContext(), "현재 " + phoneNumber_extra + " 번호로 통화가 오는중입니다.", Toast.LENGTH_LONG).show();
-                                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-                                    NotificationSomethings(phoneNumber_extra);
-                                }
-                                else{
-                                    serviceIntent.putExtra("number", phoneNumber_extra);
-                                    serviceIntent.putExtra("type", "수신 중 ...");
-                                    context_public.startActivity(serviceIntent);
-                                }
+                                Toast.makeText(context_public.getApplicationContext(), "현재 " + phoneNumber_extra + " 번호로 통화가 오는중입니다.", Toast.LENGTH_LONG).show();
+                                NotificationSomethings(phoneNumber_extra);
                                 break;
                             case TelephonyManager.CALL_STATE_IDLE:
-                                //Toast.makeText(context_public.getApplicationContext(), "현재 " + phoneNumber_extra + " 번호로 통화가 종료되었습니다.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(context_public.getApplicationContext(), "현재 " + phoneNumber_extra + " 번호로 통화가 종료되었습니다.", Toast.LENGTH_LONG).show();
                                 Log.d("test_call", "disconnect");
                                 break;
                             case TelephonyManager.CALL_STATE_OFFHOOK:
@@ -136,7 +121,6 @@ public class Callin extends BroadcastReceiver {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent) // 사용자가 노티피케이션을 탭시 ResultActivity로 이동하도록 설정
                 .setAutoCancel(true);
-
 
         //OREO API 26 이상에서는 채널 필요
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
