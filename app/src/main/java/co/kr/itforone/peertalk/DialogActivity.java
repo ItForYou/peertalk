@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import co.kr.itforone.peertalk.Util.Dialog_manager;
 
 public class DialogActivity  extends Activity {
-    String number,type;
+    String number,type,name;
     TextView tv_number, tv_name, tv_type;
     private BroadcastReceiver broadcastReceiver;
     private Dialog_manager dm = Dialog_manager.getInstance();
@@ -46,8 +46,11 @@ public class DialogActivity  extends Activity {
         Intent i = getIntent();
 
         if(i!=null) {
+
             number = i.getStringExtra("number");
             type = i.getStringExtra("type");
+            name = i.getStringExtra("name");
+
         }
 
         setContentView(R.layout.dialog_alarm);
@@ -69,6 +72,11 @@ public class DialogActivity  extends Activity {
         if(type != null && !type.isEmpty()){
             tv_type.setText(type);
         }
+
+        if(name != null && !name.isEmpty()){
+            tv_name.setText(name);
+        }
+
 
 
 

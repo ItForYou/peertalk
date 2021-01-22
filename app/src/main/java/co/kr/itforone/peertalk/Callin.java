@@ -25,6 +25,7 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import co.kr.itforone.peertalk.Util.Dialog_manager;
@@ -33,6 +34,8 @@ import co.kr.itforone.peertalk.retrofit.RetrofitAPI;
 import co.kr.itforone.peertalk.retrofit.RetrofitHelper;
 import co.kr.itforone.peertalk.retrofit.responseModel;
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -107,9 +110,40 @@ public class Callin extends BroadcastReceiver {
                                 Log.d("test_call", "ringing");
                                 incomming_flg=1;
                                 if(running_flg==0) {
-                                    serviceIntent.putExtra("number", phoneNumber_extra);
-                                    serviceIntent.putExtra("type", "수신 중 ...");
-                                    context_public.startActivity(serviceIntent);
+
+                                    SharedPreferences pref = context.getSharedPreferences("logininfo", context.MODE_PRIVATE);
+                                    String mb_id = pref.getString("id", "");
+
+
+                                    if(mb_id!=null && !mb_id.isEmpty()) {
+
+                                        RetrofitAPI networkService = RetrofitHelper.getRetrofit().create(RetrofitAPI.class);
+                                        Call<responseModel> call = networkService.getList(mb_id, phoneNumber_extra);
+                                        call.enqueue(new Callback<responseModel>() {
+                                            @Override
+                                            public void onResponse(Call<responseModel> call, Response<responseModel> response) {
+                                                if(response.isSuccessful()){
+
+                                                    responseModel responsemodel = response.body();
+
+                                                    if(responsemodel.getWr_subject()!=null && !responsemodel.getWr_subject().equals("test_subject")) {
+                                                        serviceIntent.putExtra("name", responsemodel.getWr_subject());
+                                                        serviceIntent.putExtra("number", phoneNumber_extra);
+                                                        serviceIntent.putExtra("type", "수신 중 ...");
+                                                        context_public.startActivity(serviceIntent);
+                                                    }
+                                                }
+                                                else{
+                                                    Log.d("result_call_fail",String.valueOf(response.isSuccessful()));
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(Call<responseModel> call, Throwable t) {
+                                                Log.d("result_call_fail",t.toString());
+                                            }
+                                        });
+                                    }
                                 }
 
                                 break;
@@ -121,10 +155,42 @@ public class Callin extends BroadcastReceiver {
                             case TelephonyManager.CALL_STATE_OFFHOOK:
                                 if(incomming_flg==0)
                                 {
-                                    String savedNumber = intent.getExtras().getString("android.intent.extra.PHONE_NUMBER");
-                                    serviceIntent.putExtra("number", phoneNumber_extra);
-                                    serviceIntent.putExtra("type", "발신 중 ...");
-                                    context_public.startActivity(serviceIntent);
+//  주소록 동기화
+                                    SharedPreferences pref = context.getSharedPreferences("logininfo", context.MODE_PRIVATE);
+                                    String mb_id = pref.getString("id", "");
+
+
+                                    if(mb_id!=null && !mb_id.isEmpty()) {
+
+                                        RetrofitAPI networkService = RetrofitHelper.getRetrofit().create(RetrofitAPI.class);
+                                        Call<responseModel> call = networkService.getList(mb_id, phoneNumber_extra);
+                                        call.enqueue(new Callback<responseModel>() {
+                                            @Override
+                                            public void onResponse(Call<responseModel> call, Response<responseModel> response) {
+                                                if(response.isSuccessful()){
+
+                                                    responseModel responsemodel = response.body();
+
+                                                    if(responsemodel.getWr_subject()!=null && !responsemodel.getWr_subject().equals("test_subject")) {
+                                                        serviceIntent.putExtra("name", responsemodel.getWr_subject());
+                                                        serviceIntent.putExtra("number", phoneNumber_extra);
+                                                        serviceIntent.putExtra("type", "발신 중 ...");
+                                                        context_public.startActivity(serviceIntent);
+                                                    }
+                                                }
+                                                else{
+                                                    Log.d("result_call_fail",String.valueOf(response.isSuccessful()));
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(Call<responseModel> call, Throwable t) {
+                                                Log.d("result_call_fail",t.toString());
+                                            }
+                                        });
+
+
+                                    }
                                 }
 
 //                                serviceIntent.putExtra("number", phoneNumber_extra);

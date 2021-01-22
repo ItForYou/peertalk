@@ -63,12 +63,7 @@ public class MainActivity extends AppCompatActivity {
     String[] PERMISSIONS = {
             Manifest.permission.READ_CONTACTS,
             Manifest.permission.CALL_PHONE,
-            Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.PROCESS_OUTGOING_CALLS,
-            Manifest.permission.READ_CALL_LOG,
-            Manifest.permission.SYSTEM_ALERT_WINDOW,
-            Manifest.permission.FOREGROUND_SERVICE,
-            Manifest.permission.MANAGE_OWN_CALLS,
+            Manifest.permission.READ_PHONE_STATE
 
     };
     String tv_total ="";
