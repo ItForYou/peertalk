@@ -1,6 +1,7 @@
 package co.kr.itforone.peertalk;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,9 +21,12 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -40,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import co.kr.itforone.peertalk.Util.Dialog_manager;
 import co.kr.itforone.peertalk.contact_pkg.ContactListAdapter;
 import co.kr.itforone.peertalk.contact_pkg.ListActivity;
 import co.kr.itforone.peertalk.contact_pkg.itemModel;
@@ -62,14 +68,19 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.READ_CALL_LOG,
             Manifest.permission.SYSTEM_ALERT_WINDOW,
             Manifest.permission.FOREGROUND_SERVICE,
-            Manifest.permission.MANAGE_OWN_CALLS
+            Manifest.permission.MANAGE_OWN_CALLS,
+
     };
     String tv_total ="";
     static final int PERMISSION_REQUEST_CODE = 1;
     static final int RECEIVED_CONTATSLIST = 2;
+    static final int REQ_CODE_OVERLAY_PERMISSION = 3;
+    private static int chkeck_permission= 0;
+
     WebSettings settings;
     private long backPrssedTime = 0;
-
+    public static BroadcastReceiver receiver;
+    private Dialog_manager dm = Dialog_manager.getInstance();
     private boolean hasPermissions(String[] permissions){
         // 퍼미션 확인해
         int result = -1;
@@ -104,15 +115,107 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("stop_flg","true");
+        if(chkeck_permission==1){
+            finishAndRemoveTask();
+        }
 
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("stop_flg","false");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
-        Log.d("service_call","DIALOGON");
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Settings.canDrawOverlays(this)) {
+                chkeck_permission=1;
+            } else {
+                ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, REQ_CODE_OVERLAY_PERMISSION);
+            }
+        }
+
+        //Log.d("service_call","DIALOGON");
+
+        IntentFilter filter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                String phoneNumber_extra = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
+
+                String action = intent.getAction();
+                Log.d("Main_action",action);
+
+                PhoneStateListener phoneStateListener = new PhoneStateListener(){
+
+                    @Override
+                    public void onCallStateChanged(int state, String phoneNumber) {
+                        super.onCallStateChanged(state, phoneNumber);
+
+                        if(phoneNumber_extra!=null && !phoneNumber_extra.isEmpty())
+                            Log.d("test_call_number_main", phoneNumber_extra);
+
+                        if(phoneNumber_extra!=null && !phoneNumber_extra.isEmpty()) {
+                            switch (state) {
+
+                                case TelephonyManager.CALL_STATE_RINGING:
+                                    //Toast.makeText(context_public.getApplicationContext(), "현재 " + phoneNumber_extra + " 번호로 통화가 오는중입니다.", Toast.LENGTH_LONG).show();
+                                    if(phoneNumber_extra!=null && !phoneNumber_extra.isEmpty()) {
+
+                                        Log.d("test_call", "ringing_main");
+                                        Handler handler = new Handler();
+                                        handler.postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Intent dialog_intent = new Intent(MainActivity.this, DialogActivity.class);
+                                                dialog_intent.putExtra("number", phoneNumber_extra);
+                                                dialog_intent.putExtra("type", "수신 중 ...");
+                                                startActivity(dialog_intent);
+                                            }
+                                        }, 1000); //딜레이 타임 조절
+
+                                    }
+                                    break;
+                                case TelephonyManager.CALL_STATE_IDLE:
+
+                                    //Toast.makeText(context_public.getApplicationContext(), "현재 " + phoneNumber_extra + " 번호로 통화가 종료되었습니다.", Toast.LENGTH_LONG).show();
+                                    Log.d("test_call", "disconnect");
+                                    break;
+                                case TelephonyManager.CALL_STATE_OFFHOOK:
+//                                serviceIntent.putExtra("number", phoneNumber_extra);
+//                                serviceIntent.putExtra("type", "수신 중 ...");
+//                                context_public.startActivity(serviceIntent);
+                                    Log.d("test_call", "connect");
+                                    break;
+                            }
+                        }
+                    }
+                };
+
+                telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+                telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SERVICE_STATE);
+
+            }
+        };
+        this.registerReceiver(receiver, filter);
+
+        Intent serviceintent = new Intent( this, Calling.class );
+        startService( serviceintent );
+
+
 
         settings = activityMainBinding.mwebview.getSettings();
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
@@ -131,10 +234,11 @@ public class MainActivity extends AppCompatActivity {
 
 */
 
-
-
-
     }
+
+
+
+
 
     @Override
     public void onBackPressed() {
@@ -143,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(!activityMainBinding.mwebview.canGoBack() || activityMainBinding.mwebview.getUrl().contains("all_contact") ) {
             if (0 <= intervalTime && 2000 >= intervalTime) {
-                finish();
+                finishAndRemoveTask();
             } else {
                 backPrssedTime = tempTime;
                 Toast.makeText(getApplicationContext(), "한번 더 뒤로가기 누를시 앱이 종료됩니다.", Toast.LENGTH_SHORT).show();
@@ -212,6 +316,18 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });*/
                 }
+                break;
+            case REQ_CODE_OVERLAY_PERMISSION:
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (Settings.canDrawOverlays(this)) {
+                        chkeck_permission=1;
+                    } else {
+                        ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
+                        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+                        startActivityForResult(intent, REQ_CODE_OVERLAY_PERMISSION);
+                    }
+                }
+
                 break;
         }
 

@@ -19,23 +19,37 @@ import androidx.core.app.ActivityCompat;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+
+import co.kr.itforone.peertalk.Util.Dialog_manager;
+
 public class DialogActivity  extends Activity {
     String number,type;
     TextView tv_number, tv_name, tv_type;
     private BroadcastReceiver broadcastReceiver;
+    private Dialog_manager dm = Dialog_manager.getInstance();
+    private ArrayList<Activity> arrayList;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.d("service_call","DIALOGON");
         super.onCreate(savedInstanceState);
+        arrayList = dm.getActivityList();
 
+        Log.d("dialog_intent", String.valueOf(arrayList.size()));
+/*
+        if(arrayList.size()>1){
+            dm.finishAllActivity();
+            dm.reset();
+        }
+        dm.addActivity(this);
+*/
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         Intent i = getIntent();
+
         if(i!=null) {
             number = i.getStringExtra("number");
             type = i.getStringExtra("type");
         }
 
-        Log.d("service_call_type",type);
         setContentView(R.layout.dialog_alarm);
         Display display  = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int width = (int) (display.getWidth()*0.8);
@@ -55,7 +69,13 @@ public class DialogActivity  extends Activity {
         if(type != null && !type.isEmpty()){
             tv_type.setText(type);
         }
+
+
+
+
+
     }
+
 
     @Override
     protected void onDestroy() {
@@ -64,7 +84,7 @@ public class DialogActivity  extends Activity {
 
     @Override
     public void onBackPressed() {
-        finish();
-        //finishAndRemoveTask();
+       // finish();
+        finishAndRemoveTask();
     }
 }
