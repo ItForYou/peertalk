@@ -59,19 +59,24 @@ import retrofit2.Callback;
 
 public class MainActivity extends AppCompatActivity {
 
+
     private ActivityMainBinding  activityMainBinding;
     String[] PERMISSIONS = {
             Manifest.permission.READ_CONTACTS,
             Manifest.permission.CALL_PHONE,
-            Manifest.permission.READ_PHONE_STATE
-
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.PROCESS_OUTGOING_CALLS,
+            Manifest.permission.SYSTEM_ALERT_WINDOW,
+            Manifest.permission.MANAGE_OWN_CALLS,
+            Manifest.permission.READ_CALL_LOG,
+            Manifest.permission.FOREGROUND_SERVICE
     };
     String tv_total ="";
     static final int PERMISSION_REQUEST_CODE = 1;
     static final int RECEIVED_CONTATSLIST = 2;
     static final int REQ_CODE_OVERLAY_PERMISSION = 3;
     private static int chkeck_permission= 0;
-
+    public  static int flg_dialog_main =0;
     WebSettings settings;
     private long backPrssedTime = 0;
     public static BroadcastReceiver receiver;
@@ -135,11 +140,16 @@ public class MainActivity extends AppCompatActivity {
             if (Settings.canDrawOverlays(this)) {
                 chkeck_permission=1;
             } else {
-                ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
                 Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
                 startActivityForResult(intent, REQ_CODE_OVERLAY_PERMISSION);
             }
         }
+
+        if(chkeck_permission==1){
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
+        }
+
+
 
         //Log.d("service_call","DIALOGON");
 
@@ -168,19 +178,55 @@ public class MainActivity extends AppCompatActivity {
 
                                 case TelephonyManager.CALL_STATE_RINGING:
                                     //Toast.makeText(context_public.getApplicationContext(), "현재 " + phoneNumber_extra + " 번호로 통화가 오는중입니다.", Toast.LENGTH_LONG).show();
-                                    if(phoneNumber_extra!=null && !phoneNumber_extra.isEmpty()) {
+                                    if(phoneNumber_extra!=null && !phoneNumber_extra.isEmpty() && flg_dialog_main==0) {
 
                                         Log.d("test_call", "ringing_main");
                                         Handler handler = new Handler();
                                         handler.postDelayed(new Runnable() {
                                             @Override
                                             public void run() {
-                                                Intent dialog_intent = new Intent(MainActivity.this, DialogActivity.class);
-                                                dialog_intent.putExtra("number", phoneNumber_extra);
-                                                dialog_intent.putExtra("type", "수신 중 ...");
-                                                startActivity(dialog_intent);
+
+                                                SharedPreferences pref = context.getSharedPreferences("logininfo", context.MODE_PRIVATE);
+                                                String mb_id = pref.getString("id", "");
+
+
+                                                if(mb_id!=null && !mb_id.isEmpty()) {
+
+                                                    RetrofitAPI networkService = RetrofitHelper.getRetrofit().create(RetrofitAPI.class);
+                                                    Call<responseModel> call = networkService.getList(mb_id, phoneNumber_extra);
+                                                    call.enqueue(new Callback<responseModel>() {
+                                                        @Override
+                                                        public void onResponse(Call<responseModel> call, retrofit2.Response<responseModel> response) {
+                                                            if(response.isSuccessful()){
+
+                                                                responseModel responsemodel = response.body();
+
+                                                                if(responsemodel.getWr_subject()!=null && !responsemodel.getWr_subject().equals("test_subject")) {
+
+                                                                    Intent dialog_intent = new Intent(MainActivity.this, DialogActivity.class);
+                                                                    dialog_intent.putExtra("number", phoneNumber_extra);
+                                                                    dialog_intent.putExtra("type", "수신 중 ...");
+                                                                    dialog_intent.putExtra("name", responsemodel.getWr_subject());
+                                                                    startActivity(dialog_intent);
+                                                                    flg_dialog_main=1;
+
+                                                                }
+                                                            }
+                                                            else{
+                                                                Log.d("result_call_fail",String.valueOf(response.isSuccessful()));
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onFailure(Call<responseModel> call, Throwable t) {
+                                                            Log.d("result_call_fail",t.toString());
+                                                        }
+                                                    });
+                                                }
+
+
                                             }
-                                        }, 1000); //딜레이 타임 조절
+                                        }, 5); //딜레이 타임 조절
 
                                     }
                                     break;
@@ -316,8 +362,8 @@ public class MainActivity extends AppCompatActivity {
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (Settings.canDrawOverlays(this)) {
                         chkeck_permission=1;
-                    } else {
                         ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
+                    } else {
                         Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
                         startActivityForResult(intent, REQ_CODE_OVERLAY_PERMISSION);
                     }
@@ -329,9 +375,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void choosehp(){
-
-        if (!hasPermissions(PERMISSIONS)){
-            Toast.makeText(this, "권한을 승인하지 않았습니다.", Toast.LENGTH_SHORT).show();
+        int result = -1;
+        result = ContextCompat.checkSelfPermission(getApplicationContext(), PERMISSIONS[0]);
+        if(result!= PackageManager.PERMISSION_GRANTED){
+            Toast.makeText(getApplicationContext(), "권한을 승인하지 않았습니다.", Toast.LENGTH_SHORT).show();
         }else{
 
             Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;

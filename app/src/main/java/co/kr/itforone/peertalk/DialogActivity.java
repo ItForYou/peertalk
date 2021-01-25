@@ -23,6 +23,8 @@ import java.util.ArrayList;
 
 import co.kr.itforone.peertalk.Util.Dialog_manager;
 
+import static co.kr.itforone.peertalk.MainActivity.flg_dialog_main;
+
 public class DialogActivity  extends Activity {
     String number,type,name;
     TextView tv_number, tv_name, tv_type;
@@ -77,11 +79,6 @@ public class DialogActivity  extends Activity {
             tv_name.setText(name);
         }
 
-
-
-
-
-
     }
 
 
@@ -93,6 +90,9 @@ public class DialogActivity  extends Activity {
     @Override
     public void onBackPressed() {
        // finish();
+        if(flg_dialog_main ==1){
+            flg_dialog_main =0;
+        }
         finishAndRemoveTask();
     }
 }
