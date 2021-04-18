@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class ReqeustInsert extends StringRequest {
 
-    private static final String URL = "http://itforone.co.kr/~peertalk/bbs/upload_contacts.php";
+    private static final String URL = "https://itforone.co.kr/~peertalk/bbs/upload_contacts.php";
     private Map<String, String> parameters = new HashMap();
 
     public ReqeustInsert(String names, String numbers, String id, Response.Listener<String> paramListener)

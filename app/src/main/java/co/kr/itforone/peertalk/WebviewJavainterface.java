@@ -18,6 +18,14 @@ public class WebviewJavainterface {
         mainActivity.choosehp();
 
     }
+
+    @JavascriptInterface
+    public void openlist() {
+
+        mainActivity.calledlist();
+
+    }
+
     @JavascriptInterface
     public void call_number(String number) {
         Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("tel:"+number));

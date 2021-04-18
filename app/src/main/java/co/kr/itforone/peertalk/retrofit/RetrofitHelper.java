@@ -17,7 +17,7 @@ public class RetrofitHelper {
     public static Retrofit getRetrofit(){
         Gson gson = new GsonBuilder().setLenient().create();
         return new Retrofit.Builder()
-                .baseUrl("http://itforone.co.kr/~peertalk/")
+                .baseUrl("https://itforone.co.kr/~peertalk/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
     }

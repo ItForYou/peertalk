@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View"/>
+        <variable
+            name="sale"
+            type="java.lang.Boolean"/>
         <variable
             name="datamain"
             type="co.kr.itforone.peertalk.MainActivity" />
@@ -21,10 +25,19 @@
 <!--            android:layout_gravity="center"-->
 <!--            android:onClick="choosehp"-->
 <!--            android:text="연락처 가져오기" />-->
+
+
         <WebView
             android:id="@+id/mwebview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            />
+        <ProgressBar
+            android:id="@+id/progcircle"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content"
+            android:visibility="@{sale ? View.VISIBLE : View.GONE}"
             />
 
 

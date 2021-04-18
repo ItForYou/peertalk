@@ -35,15 +35,14 @@ public class DialogActivity  extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         arrayList = dm.getActivityList();
-
         Log.d("dialog_intent", String.valueOf(arrayList.size()));
-/*
+
         if(arrayList.size()>1){
             dm.finishAllActivity();
             dm.reset();
         }
         dm.addActivity(this);
-*/
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         Intent i = getIntent();
 

@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">PeerTalk</string>
-    <string name="home">http://itforone.co.kr/~peertalk/</string>
-    <string name="personal">http://itforone.co.kr/~peertalk/bbs/per_contact.php</string>
-    <string name="login">http://itforone.co.kr/~peertalk/bbs/login.php</string>
-    <string name="all">http://itforone.co.kr/~peertalk/bbs/all_contact.php</string>
+    <string name="home">https://itforone.co.kr/~peertalk/</string>
+    <string name="personal">https://itforone.co.kr/~peertalk/bbs/per_contact.php</string>
+    <string name="login">https://itforone.co.kr/~peertalk/bbs/login.php</string>
+    <string name="contact_list">https://itforone.co.kr/~peertalk/bbs/contact_list.php</string>
+    <string name="all">https://itforone.co.kr/~peertalk/bbs/all_contact.php</string>
 </resources>
