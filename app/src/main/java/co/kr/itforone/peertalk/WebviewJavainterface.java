@@ -29,6 +29,7 @@ public class WebviewJavainterface {
     @JavascriptInterface
     public void call_number(String number) {
         Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("tel:"+number));
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mainActivity.startActivity(i);
 
     }

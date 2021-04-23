@@ -10,16 +10,35 @@
     android:background="@drawable/boder_round"
     android:padding="10dp"
     >
-
-    <TextView
-        android:id="@+id/tv_type"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.25"
-        android:text="발신 중..."
-        android:gravity="left|center_vertical"
-        android:textSize="13dp"
-        />
+        android:orientation="horizontal"
+        >
+
+        <TextView
+            android:id="@+id/tv_type"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:text="발신 중..."
+            android:gravity="left|center_vertical"
+            android:textSize="13dp"
+            />
+        <ImageView
+
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:src="@drawable/ic_close"
+            android:onClick="close_dialog"
+
+            />
+
+
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"

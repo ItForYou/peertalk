@@ -9,8 +9,10 @@ import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Display;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -28,6 +30,7 @@ import static co.kr.itforone.peertalk.MainActivity.flg_dialog_main;
 public class DialogActivity  extends Activity {
     String number,type,name;
     TextView tv_number, tv_name, tv_type;
+    ImageView bt_close;
     private BroadcastReceiver broadcastReceiver;
     private Dialog_manager dm = Dialog_manager.getInstance();
     private ArrayList<Activity> arrayList;
@@ -78,6 +81,10 @@ public class DialogActivity  extends Activity {
             tv_name.setText(name);
         }
 
+    }
+
+    public void close_dialog(View view) {
+            finishAndRemoveTask();
     }
 
 

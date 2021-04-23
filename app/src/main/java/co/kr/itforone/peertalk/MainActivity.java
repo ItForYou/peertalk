@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         Log.d("stop_flg","true");
         if(chkeck_permission==1){
-            finishAndRemoveTask();
+          //  finishAndRemoveTask();
         }
     }
 
@@ -433,6 +433,7 @@ public class MainActivity extends AppCompatActivity {
 
             String before_name="", before_number="";
             Cursor cursor = getApplicationContext().getContentResolver().query(uri,projection,null,selectionArgs,sortOrder);
+
             if(cursor.moveToFirst()){
                 do {
                     String name, number, struri;
@@ -494,8 +495,18 @@ public class MainActivity extends AppCompatActivity {
                 queue.add(requestOfferwall);
 
             }
+            else if(cursor.getCount()<=0) {
+                activityMainBinding.setSale(false);
+                activityMainBinding.mwebview.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        activityMainBinding.mwebview.loadUrl(getString(R.string.personal));
+                                    }
+                });
+            }
             else{
-                Toast.makeText(this, "fail", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "fail"+cursor.getCount(), Toast.LENGTH_SHORT).show();
+                activityMainBinding.setSale(false);
             }
         }
         }
@@ -518,8 +529,6 @@ public class MainActivity extends AppCompatActivity {
                     CallLog.Calls.DATE,
                     CallLog.Calls.DURATION
             };
-
-
 
             Cursor cursor = getApplicationContext().getContentResolver().query(uri,null,null,null,null);
 
@@ -621,12 +630,12 @@ public class MainActivity extends AppCompatActivity {
                         public void onResponse(Call<calllogModel> call, retrofit2.Response<calllogModel> response) {
 
                             Log.d("calllog_cus_RE","ok");
-                                activityMainBinding.mwebview.post(new Runnable() {
+                                /*activityMainBinding.mwebview.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         activityMainBinding.mwebview.reload();
                                     }
-                                });
+                                });*/
 
                         }
 
@@ -634,14 +643,13 @@ public class MainActivity extends AppCompatActivity {
                         public void onFailure(Call<calllogModel> call, Throwable t) {
 
                             Log.d("calllog_cus_RE","fail");
-
+                            activityMainBinding.setSale(false);
                         }
                     });
                 }
 
             }
-            Log.d("calllog_cus_total", String.valueOf(total_cusor));
-            Log.d("calllog_cus_arrtotal", String.valueOf(arr_name.contains("한울")));
+
             activityMainBinding.setSale(false);
             activityMainBinding.mwebview.post(new Runnable() {
                 @Override
