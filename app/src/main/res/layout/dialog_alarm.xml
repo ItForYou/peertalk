@@ -8,13 +8,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/dialog_layout"
     android:background="@drawable/boder_round"
-    android:padding="10dp"
     >
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.25"
         android:orientation="horizontal"
+        android:paddingTop="10dp"
         >
 
         <TextView
@@ -24,7 +24,8 @@
             android:layout_weight="0.8"
             android:text="발신 중..."
             android:gravity="left|center_vertical"
-            android:textSize="13dp"
+            android:textSize="17dp"
+            android:paddingLeft="25dp"
             />
         <ImageView
 
@@ -52,7 +53,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.3"
-        android:padding="10dp"
+        android:padding="15dp"
         android:src="@drawable/lnb_mb_noimg"
         />
     <LinearLayout
@@ -69,7 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.5"
-            android:textSize="14dp"
+            android:textSize="20dp"
             android:textStyle="bold"
             android:textColor="#000"
             android:gravity="bottom"
@@ -82,8 +83,7 @@
             android:layout_height="0dp"
             android:layout_weight="0.5"
             android:textColor="#000"
-            android:textSize="12dp"
-            android:textStyle="bold"
+            android:textSize="16dp"
             android:gravity="top"
             android:text="010-1234-1234"
             />
