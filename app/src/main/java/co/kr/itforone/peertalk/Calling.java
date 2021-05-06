@@ -35,7 +35,7 @@ public class Calling extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        Log.d("service_test","service1_oncreate");
 
     }
 
@@ -66,13 +66,14 @@ public class Calling extends Service {
         if(temp!=null && !temp.isEmpty()) {
             Log.d("service_test", temp);
         }
-
+        Log.d("service_test","service1_onStartCommand");
         return super.onStartCommand(intent, flags, startId);
 
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
+        Log.d("service_test","service1_onUnbind");
         return super.onUnbind(intent);
     }
 }

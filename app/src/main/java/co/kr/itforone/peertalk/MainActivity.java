@@ -4,6 +4,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.BindingAdapter;
 import androidx.databinding.DataBindingUtil;
@@ -12,6 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +25,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
 import android.database.Cursor;
+import android.media.AudioAttributes;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
@@ -57,8 +63,10 @@ import co.kr.itforone.peertalk.contact_pkg.ListActivity;
 import co.kr.itforone.peertalk.contact_pkg.itemModel;
 import co.kr.itforone.peertalk.databinding.ActivityMainBinding;
 import co.kr.itforone.peertalk.retrofit.CalllogAPI;
+import co.kr.itforone.peertalk.retrofit.ContactAPI;
 import co.kr.itforone.peertalk.retrofit.RetrofitAPI;
 import co.kr.itforone.peertalk.retrofit.calllogModel;
+import co.kr.itforone.peertalk.retrofit.contactModel;
 import co.kr.itforone.peertalk.retrofit.responseModel;
 import co.kr.itforone.peertalk.retrofit.RetrofitHelper;
 import co.kr.itforone.peertalk.volley.ReqeustInsert;
@@ -78,8 +86,8 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.SYSTEM_ALERT_WINDOW,
             Manifest.permission.MANAGE_OWN_CALLS,
             Manifest.permission.READ_CALL_LOG,
-            Manifest.permission.FOREGROUND_SERVICE,
-            Manifest.permission.SEND_SMS
+            Manifest.permission.FOREGROUND_SERVICE
+            //Manifest.permission.SEND_SMS
 
     };
 
@@ -194,7 +202,6 @@ public class MainActivity extends AppCompatActivity {
 
                         if(phoneNumber_extra!=null && !phoneNumber_extra.isEmpty()) {
                             Log.d("test_call_number_main", phoneNumber_extra);
-
                         }
 
                         if(phoneNumber_extra!=null && !phoneNumber_extra.isEmpty()) {
@@ -230,12 +237,48 @@ public class MainActivity extends AppCompatActivity {
 
                                                                 if(responsemodel.getWr_subject()!=null && !responsemodel.getWr_subject().equals("test_subject")) {
 
-                                                                    Intent dialog_intent = new Intent(MainActivity.this, DialogActivity.class);
+                                                                 /*   Intent dialog_intent = new Intent(MainActivity.this, DialogActivity.class);
                                                                     dialog_intent.putExtra("number", phoneNumber_extra);
                                                                     dialog_intent.putExtra("type", "수신 중 ...");
                                                                     dialog_intent.putExtra("name", responsemodel.getWr_subject());
-                                                                    startActivity(dialog_intent);
+                                                                    dialog_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                                    startActivity(dialog_intent);*/
+                                                                    String channelId = "peertalk";
+                                                                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                                    PendingIntent pd_i = PendingIntent.getActivity(getApplicationContext(),0,intent,PendingIntent.FLAG_ONE_SHOT);
 
+
+
+                                                                    NotificationCompat.Builder notificationBuilder =
+                                                                            new NotificationCompat.Builder(getApplicationContext(), channelId)
+                                                                                    .setSmallIcon(R.drawable.ic_launcher)
+                                                                                    .setContentTitle("수신중")
+                                                                                    .setContentText(responsemodel.getWr_subject())
+                                                                                    .setAutoCancel(false)
+                                                                                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                                                                    .setStyle(new NotificationCompat.BigTextStyle().bigText(responsemodel.getWr_content()));
+
+
+                                                                    Notification notification = notificationBuilder.build();
+                                                                    NotificationManager notificationManager =
+                                                                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                                                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                                                        NotificationChannel channel = new NotificationChannel(channelId,
+                                                                                "peertalk",
+                                                                                NotificationManager.IMPORTANCE_HIGH);
+                                                                        notificationManager.createNotificationChannel(channel);
+                                                                        AudioAttributes att = new AudioAttributes.Builder()
+                                                                                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                                                                                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                                                                                .build();
+
+                                                                    }
+                                                                    notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+
+                                                                    Log.d("result_call_fail_",String.valueOf(response.isSuccessful()));
 
                                                                 }
                                                             }
@@ -250,21 +293,19 @@ public class MainActivity extends AppCompatActivity {
                                                         }
                                                     });
                                                 }
-
-
                                             }
                                         }, 500); //딜레이 타임 조절
                                     }
                                     break;
                                 case TelephonyManager.CALL_STATE_IDLE:
-                                   /* if(flg_offhook!=1 && flg_ringing==1) {
-                                        SmsManager sms = SmsManager.getDefault();
-                                        sms.sendTextMessage(phoneNumber_extra, null, phoneNumber_extra+"번호로 부재중통화일 시 보내고 싶은 메세지 입니다.", null, null);
+                                    if(flg_offhook!=1 && flg_ringing==1) {
+                                       // SmsManager sms = SmsManager.getDefault();
+                                       // sms.sendTextMessage(phoneNumber_extra, null, phoneNumber_extra+"번호로 부재중통화일 시 보내고 싶은 메세지 입니다.", null, null);
                                     }
                                     else {
-                                        SmsManager sms = SmsManager.getDefault();
-                                        sms.sendTextMessage(phoneNumber_extra, null, phoneNumber_extra+"번호로 통화종료시 보내고 싶은 메세지 입니다.", null, null);
-                                    }*/
+                                       // SmsManager sms = SmsManager.getDefault();
+                                       //  sms.sendTextMessage(phoneNumber_extra, null, phoneNumber_extra+"번호로 통화종료시 보내고 싶은 메세지 입니다.", null, null);
+                                    }
                                     flg_offhook=0;
                                     flg_ringing=0;
                                     //Toast.makeText(context_public.getApplicationContext(), "현재 " + phoneNumber_extra + " 번호로 통화가 종료되었습니다.", Toast.LENGTH_LONG).show();
@@ -292,8 +333,8 @@ public class MainActivity extends AppCompatActivity {
         };
         this.registerReceiver(receiver, filter);
 
-        Intent serviceintent = new Intent( this, Calling.class );
-        startService( serviceintent );
+      //  Intent serviceintent = new Intent( this, Calling.class );
+     //  startService( serviceintent );
 
 
 
@@ -475,7 +516,31 @@ public class MainActivity extends AppCompatActivity {
                // Log.d("mb_id", id);
                // Log.d("activityresult", temp_names);
                // Log.d("activityresult", temp_numbers);
-                com.android.volley.Response.Listener<String> responseListener = new Response.Listener<String>() {
+
+                ContactAPI networkService = RetrofitHelper.getRetrofit().create(ContactAPI.class);
+                Call<contactModel> call = networkService.getList(temp_names, temp_numbers,id);
+                call.enqueue(new Callback<contactModel>() {
+
+                    @Override
+                    public void onResponse(Call<contactModel> call, retrofit2.Response<contactModel> response) {
+
+                        Log.d("contact_cus_RE","ok");
+                        activityMainBinding.setSale(false);
+                        activityMainBinding.mwebview.loadUrl(getString(R.string.personal));
+
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<contactModel> call, Throwable t) {
+
+                        Log.d("contact_cus_RE",t.toString());
+                        activityMainBinding.setSale(false);
+
+                    }
+                });
+
+               /* com.android.volley.Response.Listener<String> responseListener = new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try {
@@ -492,7 +557,7 @@ public class MainActivity extends AppCompatActivity {
                 };
                 ReqeustInsert requestOfferwall = new ReqeustInsert(temp_names,temp_numbers, id, responseListener);
                 RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-                queue.add(requestOfferwall);
+                queue.add(requestOfferwall);*/
 
             }
             else if(cursor.getCount()<=0) {
@@ -620,11 +685,12 @@ public class MainActivity extends AppCompatActivity {
                     String c_date_a = TextUtils.join("|", arr_date);
                     String c_duration_a = TextUtils.join("|", arr_duration);
 
-                    Log.d("arr_log"+total_cusor,c_duration_a);
+                    Log.d("arr_log"+total_cusor,c_numer_a);
 
                     CalllogAPI networkService = RetrofitHelper.getRetrofit().create(CalllogAPI.class);
                     Call<calllogModel> call = networkService.getList(mb_id, c_numer_a,c_type_a,c_name_a,c_date_a,c_duration_a);
-                    call.enqueue(new Callback<calllogModel>() {
+
+                    call.enqueue(new Callback<calllogModel>(){
 
                         @Override
                         public void onResponse(Call<calllogModel> call, retrofit2.Response<calllogModel> response) {
@@ -642,8 +708,10 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(Call<calllogModel> call, Throwable t) {
 
-                            Log.d("calllog_cus_RE","fail");
+                            Log.d("calllog_cus_RE",call.toString());
+                            Log.d("calllog_cus_RE2",t.toString());
                             activityMainBinding.setSale(false);
+
                         }
                     });
                 }
