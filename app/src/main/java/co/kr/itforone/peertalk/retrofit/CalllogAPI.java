@@ -12,7 +12,7 @@ import retrofit2.http.QueryMap;
 public interface CalllogAPI {
 
     @FormUrlEncoded
-    @POST("bbs/upload_conlist.php")
+    @POST("bbs/upload_conlist_v2.php")
     Call<calllogModel>  getList(
 
             @Field("mb_id") String mb_id,

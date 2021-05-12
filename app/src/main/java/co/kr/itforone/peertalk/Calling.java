@@ -47,7 +47,7 @@ public class Calling extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String temp = "";
+   /*     String temp = "";
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
         telephonyManager.listen(new PhoneStateListener(){
@@ -66,7 +66,9 @@ public class Calling extends Service {
         if(temp!=null && !temp.isEmpty()) {
             Log.d("service_test", temp);
         }
-        Log.d("service_test","service1_onStartCommand");
+        Log.d("service_test","service1_onStartCommand");*/
+
+
         return super.onStartCommand(intent, flags, startId);
 
     }

@@ -42,10 +42,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 
 import org.w3c.dom.Text;
@@ -66,12 +66,15 @@ import co.kr.itforone.peertalk.retrofit.CalllogAPI;
 import co.kr.itforone.peertalk.retrofit.ContactAPI;
 import co.kr.itforone.peertalk.retrofit.RetrofitAPI;
 import co.kr.itforone.peertalk.retrofit.calllogModel;
+import co.kr.itforone.peertalk.retrofit.chkTotalAPI;
+import co.kr.itforone.peertalk.retrofit.chkTotalModel;
 import co.kr.itforone.peertalk.retrofit.contactModel;
 import co.kr.itforone.peertalk.retrofit.responseModel;
 import co.kr.itforone.peertalk.retrofit.RetrofitHelper;
 import co.kr.itforone.peertalk.volley.ReqeustInsert;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -103,6 +106,10 @@ public class MainActivity extends AppCompatActivity {
     public static BroadcastReceiver receiver;
     public int stateprog = View.GONE;
     private Dialog_manager dm = Dialog_manager.getInstance();
+    int called_state=0, choosehp_state=0, movefromcalled=0, movefromchoosehp=0;
+
+
+
 
     private boolean hasPermissions(String[] permissions){
         // 퍼미션 확인해
@@ -167,6 +174,8 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         activityMainBinding.setDatamain(this);
         activityMainBinding.setSale(false);
+
+
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (Settings.canDrawOverlays(this)) {
@@ -244,39 +253,7 @@ public class MainActivity extends AppCompatActivity {
                                                                     dialog_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                                                     startActivity(dialog_intent);*/
                                                                     String channelId = "peertalk";
-                                                                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                                    PendingIntent pd_i = PendingIntent.getActivity(getApplicationContext(),0,intent,PendingIntent.FLAG_ONE_SHOT);
-
-
-
-                                                                    NotificationCompat.Builder notificationBuilder =
-                                                                            new NotificationCompat.Builder(getApplicationContext(), channelId)
-                                                                                    .setSmallIcon(R.drawable.ic_launcher)
-                                                                                    .setContentTitle("수신중")
-                                                                                    .setContentText(responsemodel.getWr_subject())
-                                                                                    .setAutoCancel(false)
-                                                                                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                                                                                    .setStyle(new NotificationCompat.BigTextStyle().bigText(responsemodel.getWr_content()));
-
-
-                                                                    Notification notification = notificationBuilder.build();
-                                                                    NotificationManager notificationManager =
-                                                                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-                                                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                                                        NotificationChannel channel = new NotificationChannel(channelId,
-                                                                                "peertalk",
-                                                                                NotificationManager.IMPORTANCE_HIGH);
-                                                                        notificationManager.createNotificationChannel(channel);
-                                                                        AudioAttributes att = new AudioAttributes.Builder()
-                                                                                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                                                                                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                                                                                .build();
-
-                                                                    }
-                                                                    notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+                                                                    shownoti(responsemodel.getWr_subject(),responsemodel.getWr_content(),"수신중 ...");
 
                                                                     Log.d("result_call_fail_",String.valueOf(response.isSuccessful()));
 
@@ -345,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
         settings.setTextZoom(100);
 
         activityMainBinding.mwebview.addJavascriptInterface(new WebviewJavainterface(this),"Android");
-        activityMainBinding.mwebview.setWebViewClient(new Viewmanager(this));
+        activityMainBinding.mwebview.setWebViewClient(new Viewmanager(this,this));
         activityMainBinding.mwebview.setWebChromeClient(new WebchromeClient(this, this));
 
         activityMainBinding.mwebview.loadUrl(getString(R.string.login));
@@ -449,7 +426,65 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void shownoti(String name, String numbers, String type){
+
+        RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.dialog_alarm);
+        remoteViews.setTextViewText(R.id.tv_type, type);
+        remoteViews.setTextViewText(R.id.tv_name,  name);
+        remoteViews.setTextViewText(R.id.tv_number,  numbers);
+        String channelId = "peertalk";
+        Intent intent = new Intent(getApplicationContext(),Calling.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        //intent.setClass(this, MainActivity.class);
+
+        PendingIntent fullscreen = PendingIntent.getActivity(getApplicationContext(),0,intent,PendingIntent.FLAG_CANCEL_CURRENT);
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(getApplicationContext(), channelId)
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
+                        .setContentTitle(type)
+                        .setContentText(numbers)
+                        .setCategory(NotificationCompat.CATEGORY_CALL)
+                        //.setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                        .setCustomContentView(remoteViews)
+                        .setContent(remoteViews)
+                        .setCustomBigContentView(remoteViews)
+                        .setFullScreenIntent(fullscreen,true)
+                        .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(channelId,
+                    "peertalk",
+                    NotificationManager.IMPORTANCE_HIGH);
+            notificationManager.createNotificationChannel(channel);
+            AudioAttributes att = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build();
+
+        }
+
+        notificationManager.notify(3001 /* ID of notification */, notificationBuilder.build());
+
+    }
+
     public void choosehp(){
+
+        if(choosehp_state==1){
+            activityMainBinding.mwebview.post(new Runnable() {
+                @Override
+                public void run() {
+                    activityMainBinding.mwebview.loadUrl("javascript:swal('로딩 중 입니다.')");
+                }
+            });
+           return;
+        }
+        movefromchoosehp=0;
+        choosehp_state=1;
         int result = -1;
         activityMainBinding.setSale(true);
      //   activityMainBinding.progcircle.setVisibility(View.VISIBLE);
@@ -524,16 +559,27 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<contactModel> call, retrofit2.Response<contactModel> response) {
 
-                        Log.d("contact_cus_RE","ok");
+
                         activityMainBinding.setSale(false);
-                        activityMainBinding.mwebview.loadUrl(getString(R.string.personal));
-
-
+                        choosehp_state=0;
+                        if(movefromchoosehp==0) {
+                            activityMainBinding.mwebview.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    activityMainBinding.mwebview.loadUrl(getString(R.string.personal));
+                                }
+                            });
+                        }
+                        Log.d("contact_cus_RE","ok");
+//                        if(!activityMainBinding.mwebview.getUrl().contains(getString(R.string.personal))) {
+//                            Log.d("contact_cus_RE","ok");
+//
+//                        }
                     }
 
                     @Override
                     public void onFailure(Call<contactModel> call, Throwable t) {
-
+                        choosehp_state=0;
                         Log.d("contact_cus_RE",t.toString());
                         activityMainBinding.setSale(false);
 
@@ -561,15 +607,17 @@ public class MainActivity extends AppCompatActivity {
 
             }
             else if(cursor.getCount()<=0) {
+                choosehp_state=0;
                 activityMainBinding.setSale(false);
                 activityMainBinding.mwebview.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        activityMainBinding.mwebview.loadUrl(getString(R.string.personal));
-                                    }
+                    @Override
+                    public void run() {
+                        activityMainBinding.mwebview.loadUrl(getString(R.string.personal));
+                    }
                 });
             }
             else{
+                choosehp_state=0;
                 Toast.makeText(this, "fail"+cursor.getCount(), Toast.LENGTH_SHORT).show();
                 activityMainBinding.setSale(false);
             }
@@ -578,6 +626,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void calledlist() {
 
+        if(called_state==1){
+            activityMainBinding.mwebview.post(new Runnable() {
+                @Override
+                public void run() {
+                    activityMainBinding.mwebview.loadUrl("javascript:swal('로딩 중 입니다.')");
+                }
+            });
+            return;
+        }
+        movefromcalled=0;
+        called_state=1;
         int result = -1;
         activityMainBinding.setSale(true);
         //   activityMainBinding.progcircle.setVisibility(View.VISIBLE);
@@ -685,46 +744,75 @@ public class MainActivity extends AppCompatActivity {
                     String c_date_a = TextUtils.join("|", arr_date);
                     String c_duration_a = TextUtils.join("|", arr_duration);
 
-                    Log.d("arr_log"+total_cusor,c_numer_a);
+                    Log.d("arr_log"+total_cusor,arr_number.toString());
 
-                    CalllogAPI networkService = RetrofitHelper.getRetrofit().create(CalllogAPI.class);
-                    Call<calllogModel> call = networkService.getList(mb_id, c_numer_a,c_type_a,c_name_a,c_date_a,c_duration_a);
 
-                    call.enqueue(new Callback<calllogModel>(){
+                    chkTotalAPI networkTotal = RetrofitHelper.getRetrofit().create(chkTotalAPI.class);
+                    Call<chkTotalModel> callTotal = networkTotal.getList(mb_id, c_numer_a,c_name_a);
+
+                    callTotal.enqueue(new Callback<chkTotalModel>(){
 
                         @Override
-                        public void onResponse(Call<calllogModel> call, retrofit2.Response<calllogModel> response) {
+                        public void onResponse(Call<chkTotalModel> callTotal, Response<chkTotalModel> response) {
 
                             Log.d("calllog_cus_RE","ok");
-                                /*activityMainBinding.mwebview.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        activityMainBinding.mwebview.reload();
+                            chkTotalModel chktotalmodel = response.body();
+                          //  ArrayList<String> names = response.body().names;
+
+                            Log.d("calllog_cus_RE",String.valueOf(chktotalmodel.getFlg()));
+                            Log.d("calllog_cus_RE",chktotalmodel.getNames().toString());
+                            String filter_names =  TextUtils.join("|", chktotalmodel.names);
+                            CalllogAPI networkService = RetrofitHelper.getRetrofit().create(CalllogAPI.class);
+                            //Log.d("calllog_cus_RE",filter_names);
+                            Call<calllogModel> call = networkService.getList(mb_id, c_numer_a,c_type_a,filter_names,c_date_a,c_duration_a);
+
+                            call.enqueue(new Callback<calllogModel>(){
+
+                                @Override
+                                public void onResponse(Call<calllogModel> call, retrofit2.Response<calllogModel> response) {
+                                    called_state=0;
+                                    Log.d("calllog_cus_RE","ok");
+                                    activityMainBinding.setSale(false);
+                                    if(movefromcalled==0) {
+                                        activityMainBinding.mwebview.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                activityMainBinding.mwebview.loadUrl(getString(R.string.contact_list));
+                                            }
+                                        });
                                     }
-                                });*/
+
+                                }
+
+                                @Override
+                                public void onFailure(Call<calllogModel> call, Throwable t) {
+                                    called_state=0;
+                                    Log.d("calllog_cus_RE",call.toString());
+                                    Log.d("calllog_cus_RE2",t.toString());
+                                    activityMainBinding.setSale(false);
+
+                                }
+                            });
 
                         }
 
                         @Override
-                        public void onFailure(Call<calllogModel> call, Throwable t) {
-
+                        public void onFailure(Call<chkTotalModel> call, Throwable t) {
+                            Log.d("calllog_cus_RE","fail");
                             Log.d("calllog_cus_RE",call.toString());
-                            Log.d("calllog_cus_RE2",t.toString());
+                            Log.d("calllog_cus_RE",t.toString());
+                            called_state=0;
                             activityMainBinding.setSale(false);
 
                         }
                     });
+
+
                 }
 
             }
 
-            activityMainBinding.setSale(false);
-            activityMainBinding.mwebview.post(new Runnable() {
-                @Override
-                public void run() {
-                    activityMainBinding.mwebview.loadUrl(getString(R.string.contact_list));
-                }
-            });
+
 
         }
     }

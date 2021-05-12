@@ -34,6 +34,13 @@ public class WebviewJavainterface {
 
     }
 
+    @JavascriptInterface
+    public void tmp_shownoti (String name, String number, String type) {
+
+        mainActivity.shownoti(name,number,type);
+
+    }
+
 
 
     @JavascriptInterface

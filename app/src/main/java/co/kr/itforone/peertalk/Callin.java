@@ -2,12 +2,17 @@ package co.kr.itforone.peertalk;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
+import android.media.AudioAttributes;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,10 +25,12 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.NotificationCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +59,53 @@ public class Callin extends BroadcastReceiver {
     private Dialog_manager am = Dialog_manager.getInstance();
     private int running_flg = 0;
     private RetrofitAPI retrofitAPI;
+
+    public void shownoti(String name, String numbers, String type){
+
+        RemoteViews remoteViews = new RemoteViews(context_public.getPackageName(), R.layout.dialog_alarm);
+        remoteViews.setTextViewText(R.id.tv_type, type);
+        remoteViews.setTextViewText(R.id.tv_name,  name);
+        remoteViews.setTextViewText(R.id.tv_number,  numbers);
+        String channelId = "peertalk";
+        Intent intent = new Intent(context_public.getApplicationContext(),Calling.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        //intent.setClass(this, MainActivity.class);
+
+        PendingIntent fullscreen = PendingIntent.getActivity(context_public.getApplicationContext(),0,intent,PendingIntent.FLAG_CANCEL_CURRENT);
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(context_public.getApplicationContext(), channelId)
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
+                        .setContentTitle(type)
+                        .setContentText(numbers)
+                        .setCategory(NotificationCompat.CATEGORY_CALL)
+                        //.setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                        .setCustomContentView(remoteViews)
+                      //  .setContent(remoteViews)
+                       // .setCustomBigContentView(remoteViews)
+                        .setFullScreenIntent(fullscreen,true)
+                        .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+
+        NotificationManager notificationManager =
+                (NotificationManager) context_public.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(channelId,
+                    "peertalk",
+                    NotificationManager.IMPORTANCE_HIGH);
+            notificationManager.createNotificationChannel(channel);
+            AudioAttributes att = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build();
+
+        }
+
+        notificationManager.notify(3001 /* ID of notification */, notificationBuilder.build());
+
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
 
@@ -123,16 +177,18 @@ public class Callin extends BroadcastReceiver {
                                             @Override
                                             public void onResponse(Call<responseModel> call, Response<responseModel> response) {
                                                 if(response.isSuccessful()){
-                                                    /*responseModel responsemodel = response.body();
-
+                                                    responseModel responsemodel = response.body();
                                                     if(responsemodel.getWr_subject()!=null && !responsemodel.getWr_subject().equals("test_subject")) {
+
+                                                       // shownoti(responsemodel.getWr_subject(), responsemodel.getWr_content(),"수신중...");
+
                                                         serviceIntent.putExtra("name", responsemodel.getWr_subject());
                                                         serviceIntent.putExtra("number", phoneNumber_extra);
                                                         serviceIntent.putExtra("type", "수신 중 ...");
                                                         context_public.startActivity(serviceIntent);
 
+                                                    }
 
-                                                    }*/
                                                 }
                                                 else{
                                                     Log.d("result_call_fail",String.valueOf(response.isSuccessful()));
@@ -173,6 +229,9 @@ public class Callin extends BroadcastReceiver {
                                                     responseModel responsemodel = response.body();
 
                                                     if(responsemodel.getWr_subject()!=null && !responsemodel.getWr_subject().equals("test_subject")) {
+
+                                                       // shownoti(responsemodel.getWr_subject(),phoneNumber_extra,"발신중...");
+
                                                         serviceIntent.putExtra("name", responsemodel.getWr_subject());
                                                         serviceIntent.putExtra("number", phoneNumber_extra);
                                                         serviceIntent.putExtra("type", "발신 중 ...");

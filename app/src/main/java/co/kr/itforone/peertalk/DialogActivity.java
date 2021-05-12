@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Display;
@@ -68,6 +69,7 @@ public class DialogActivity  extends Activity {
         tv_name = (TextView) findViewById(R.id.tv_name);
         tv_number = (TextView) findViewById(R.id.tv_number);
         tv_type = (TextView) findViewById(R.id.tv_type);
+        bt_close = (ImageView) findViewById(R.id.bt_close);
 
         if(number != null && !number.isEmpty()){
                 tv_number.setText(number);
@@ -80,6 +82,18 @@ public class DialogActivity  extends Activity {
         if(name != null && !name.isEmpty()){
             tv_name.setText(name);
         }
+        bt_close.setVisibility(View.VISIBLE);
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                bt_close.setVisibility(View.GONE);
+                finishAndRemoveTask();
+
+            }
+
+        },2000);
 
     }
 
