@@ -2,7 +2,6 @@ package co.kr.itforone.peertalk.retrofit;
 
 public class responseModel {
 
-
     public String getWr_subject() {
         return wr_subject;
     }
@@ -14,6 +13,5 @@ public class responseModel {
     }
 
     String wr_content;
-
 
 }

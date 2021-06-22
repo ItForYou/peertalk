@@ -18,5 +18,4 @@ public interface RetrofitAPI {
             @Field("number") String number
     );
 
-
 }

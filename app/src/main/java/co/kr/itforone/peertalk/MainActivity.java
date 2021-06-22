@@ -89,7 +89,8 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.SYSTEM_ALERT_WINDOW,
             Manifest.permission.MANAGE_OWN_CALLS,
             Manifest.permission.READ_CALL_LOG,
-            Manifest.permission.FOREGROUND_SERVICE
+            Manifest.permission.FOREGROUND_SERVICE,
+            Manifest.permission.ANSWER_PHONE_CALLS
             //Manifest.permission.SEND_SMS
 
     };
@@ -175,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding.setDatamain(this);
         activityMainBinding.setSale(false);
 
-
+        shownoti("test","tset2","test3");
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (Settings.canDrawOverlays(this)) {
@@ -193,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
         //Log.d("service_call","DIALOGON");
 
         IntentFilter filter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -444,14 +446,12 @@ public class MainActivity extends AppCompatActivity {
                         .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
                         .setContentTitle(type)
                         .setContentText(numbers)
-                        .setCategory(NotificationCompat.CATEGORY_CALL)
                         //.setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                         .setCustomContentView(remoteViews)
                         .setContent(remoteViews)
                         .setCustomBigContentView(remoteViews)
                         .setFullScreenIntent(fullscreen,true)
                         .setPriority(NotificationCompat.PRIORITY_HIGH);
-
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -745,7 +745,7 @@ public class MainActivity extends AppCompatActivity {
                     String c_duration_a = TextUtils.join("|", arr_duration);
 
                     Log.d("arr_log"+total_cusor,arr_number.toString());
-
+                    Log.d("calllog_cus_RE","start");
 
                     chkTotalAPI networkTotal = RetrofitHelper.getRetrofit().create(chkTotalAPI.class);
                     Call<chkTotalModel> callTotal = networkTotal.getList(mb_id, c_numer_a,c_name_a);
@@ -807,13 +807,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
 
-
                 }
-
             }
-
-
-
         }
     }
 

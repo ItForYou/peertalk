@@ -25,7 +25,8 @@ public class RetrofitHelper {
                 .readTimeout(2, TimeUnit.MINUTES)
                 .writeTimeout(2, TimeUnit.MINUTES)
                 .build();
-
+        //http://3.35.13.79/test_post/
+        //https://itforone.co.kr/~peertalk/
         return new Retrofit.Builder()
                 .client(okHttpClient)
                 .baseUrl("https://itforone.co.kr/~peertalk/")

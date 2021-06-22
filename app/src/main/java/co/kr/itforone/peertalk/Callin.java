@@ -177,16 +177,19 @@ public class Callin extends BroadcastReceiver {
                                             @Override
                                             public void onResponse(Call<responseModel> call, Response<responseModel> response) {
                                                 if(response.isSuccessful()){
+
                                                     responseModel responsemodel = response.body();
+                                                    Log.d("test_call", responsemodel.getWr_subject());
                                                     if(responsemodel.getWr_subject()!=null && !responsemodel.getWr_subject().equals("test_subject")) {
 
-                                                       // shownoti(responsemodel.getWr_subject(), responsemodel.getWr_content(),"수신중...");
+                                                        shownoti(responsemodel.getWr_subject(), responsemodel.getWr_content(),"수신중...");
 
+/*
                                                         serviceIntent.putExtra("name", responsemodel.getWr_subject());
                                                         serviceIntent.putExtra("number", phoneNumber_extra);
                                                         serviceIntent.putExtra("type", "수신 중 ...");
                                                         context_public.startActivity(serviceIntent);
-
+*/
                                                     }
 
                                                 }
