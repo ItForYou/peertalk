@@ -4,10 +4,8 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -17,10 +15,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 

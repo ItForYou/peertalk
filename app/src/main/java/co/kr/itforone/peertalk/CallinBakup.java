@@ -1,29 +1,14 @@
 package co.kr.itforone.peertalk;
 
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PixelFormat;
-import android.os.Build;
-import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.telecom.TelecomManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
-
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
-
-import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-import static android.content.Context.WINDOW_SERVICE;
 
 public class CallinBakup extends BroadcastReceiver {
     WindowManager.LayoutParams params;

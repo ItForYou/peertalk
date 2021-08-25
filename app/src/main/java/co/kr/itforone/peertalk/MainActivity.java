@@ -1,18 +1,15 @@
 package co.kr.itforone.peertalk;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.BindingAdapter;
 import androidx.databinding.DataBindingUtil;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -26,40 +23,33 @@ import android.content.pm.PackageManager;
 
 import android.database.Cursor;
 import android.media.AudioAttributes;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.telephony.PhoneStateListener;
-import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
-
-import org.w3c.dom.Text;
-
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
+import com.zhihu.matisse.Matisse;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import co.kr.itforone.peertalk.Util.Dialog_manager;
-import co.kr.itforone.peertalk.contact_pkg.ContactListAdapter;
-import co.kr.itforone.peertalk.contact_pkg.ListActivity;
 import co.kr.itforone.peertalk.contact_pkg.itemModel;
 import co.kr.itforone.peertalk.databinding.ActivityMainBinding;
 import co.kr.itforone.peertalk.retrofit.CalllogAPI;
@@ -71,7 +61,6 @@ import co.kr.itforone.peertalk.retrofit.chkTotalModel;
 import co.kr.itforone.peertalk.retrofit.contactModel;
 import co.kr.itforone.peertalk.retrofit.responseModel;
 import co.kr.itforone.peertalk.retrofit.RetrofitHelper;
-import co.kr.itforone.peertalk.volley.ReqeustInsert;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -90,7 +79,11 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.MANAGE_OWN_CALLS,
             Manifest.permission.READ_CALL_LOG,
             Manifest.permission.FOREGROUND_SERVICE,
-            Manifest.permission.ANSWER_PHONE_CALLS
+            Manifest.permission.ANSWER_PHONE_CALLS,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+
+
             //Manifest.permission.SEND_SMS
 
     };
@@ -107,8 +100,13 @@ public class MainActivity extends AppCompatActivity {
     public static BroadcastReceiver receiver;
     public int stateprog = View.GONE;
     private Dialog_manager dm = Dialog_manager.getInstance();
-    int called_state=0, choosehp_state=0, movefromcalled=0, movefromchoosehp=0;
 
+    //파일첨부(프로필사진)
+    ValueCallback<Uri[]> filePathCallbackLollipop;
+    static final int FILECHOOSER_LOLLIPOP_REQ_CODE=1300;
+
+    int called_state=0, choosehp_state=0, movefromcalled=0, movefromchoosehp=0;
+    String user_id, user_pwd;
 
 
 
@@ -176,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding.setDatamain(this);
         activityMainBinding.setSale(false);
 
-        shownoti("test","tset2","test3");
+        //shownoti("test","tset2","test3");
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (Settings.canDrawOverlays(this)) {
@@ -327,7 +325,17 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding.mwebview.setWebViewClient(new Viewmanager(this,this));
         activityMainBinding.mwebview.setWebChromeClient(new WebchromeClient(this, this));
 
-        activityMainBinding.mwebview.loadUrl(getString(R.string.login));
+        SharedPreferences pref = getSharedPreferences("logininfo", MODE_PRIVATE);
+        user_id = pref.getString("id", "");
+        user_pwd = pref.getString("pwd", "");
+
+
+        if(!user_id.isEmpty() && !user_pwd.isEmpty()){
+            activityMainBinding.mwebview.loadUrl(getString(R.string.loginchk) + "mb_id=" + user_id + "&mb_password=" + user_pwd);
+        }
+        else{
+            activityMainBinding.mwebview.loadUrl(getString(R.string.login));
+        }
 
         /*Intent i = new Intent(MainActivity.this, DialogActivity.class);
         startActivity(i);
@@ -340,7 +348,9 @@ public class MainActivity extends AppCompatActivity {
         long tempTime = System.currentTimeMillis();
         long intervalTime = tempTime - backPrssedTime;
 
-        if(!activityMainBinding.mwebview.canGoBack() || activityMainBinding.mwebview.getUrl().contains("all_contact") ) {
+        if(!activityMainBinding.mwebview.canGoBack() || activityMainBinding.mwebview.getUrl().contains("all_contact") ||
+                activityMainBinding.mwebview.getUrl().contains("login.php")
+        ) {
             if (0 <= intervalTime && 2000 >= intervalTime) {
                 finishAndRemoveTask();
             } else {
@@ -424,8 +434,94 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 break;
+
+            case FILECHOOSER_LOLLIPOP_REQ_CODE:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+                    if (resultCode == RESULT_OK && activityMainBinding.mwebview.getUrl().contains("contact.php?")){
+                        if (data != null) {
+                            //String dataString = data.getDataString();
+                            //  ClipData clipData = data.getClipData();
+                            // Uri result = (data == null || resultCode != RESULT_OK) ? null : data.getData();
+                            List<Uri> matisse = Matisse.obtainResult(data);
+                            //   Log.d("mselected_stcrop",  matisse.get(0).toString());
+                            CropImage.activity(matisse.get(0))
+                                    .setAspectRatio(1,1)//가로 세로 1:1로 자르기 기능 * 1:1 4:3 16:9로 정해져 있어요
+                                    .setCropShape(CropImageView.CropShape.OVAL)
+                                    .start(this);
+
+//                        if (clipData != null) {
+//                            result = new Uri[clipData.getItemCount()];
+//                            for (int i = 0; i < clipData.getItemCount(); i++) {
+//                                ClipData.Item item = clipData.getItemAt(i);
+//                                result[i] = item.getUri();
+//                            }
+//                        }
+//                        else {
+//                            result = ChromeManager.FileChooserParams.parseResult(resultCode, data);
+//                            //result = (data == null) ? new Uri[]{mCapturedImageURI} : WebChromeClient.FileChooserParams.parseResult(resultCode, data);
+//                        }
+                        } else {
+                            filePathCallbackLollipop.onReceiveValue(null);
+                            filePathCallbackLollipop = null;
+                        }
+                    } else if (resultCode == RESULT_OK && !activityMainBinding.mwebview.getUrl().contains("contact.php?")){
+
+                       /* if (data != null){
+
+                            List<Uri> matisse = Matisse.obtainResult(data);
+                            Uri[] result = new Uri[matisse.size()];
+                            for (int i = 0; i < matisse.size(); i++) {
+
+                                //  Log.d("mselected2",  matisse.get(i).toString());
+                                result[i] = matisse.get(i);
+
+                            }
+
+                            filePathCallbackLollipop.onReceiveValue(result);
+                        } else {
+                            filePathCallbackLollipop.onReceiveValue(null);
+                            filePathCallbackLollipop = null;
+                        }*/
+                    } else {
+                        try {
+                            if (filePathCallbackLollipop != null) {
+
+                                filePathCallbackLollipop.onReceiveValue(null);
+                                filePathCallbackLollipop = null;
+
+                            }
+                        } catch (Exception e) {
+
+                        }
+                    }
+                }
+                break;
+            case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
+
+                CropImage.ActivityResult result = CropImage.getActivityResult(data);
+                if(result!=null) {
+                    Uri resultUri = result.getUri();
+                    Uri[] arr_Uri = new Uri[1];
+                    arr_Uri[0] = resultUri;
+                    filePathCallbackLollipop.onReceiveValue(arr_Uri);
+                    filePathCallbackLollipop = null;
+                }
+                else {
+                    try {
+                        if (filePathCallbackLollipop != null) {
+                            filePathCallbackLollipop.onReceiveValue(null);
+                            filePathCallbackLollipop = null;
+                        }
+                    } catch (Exception e) {
+                    }
+                }
+                break;
         }
 
+    }
+
+    public void set_filePathCallbackLollipop(ValueCallback<Uri[]> filePathCallbackLollipop){
+        this.filePathCallbackLollipop = filePathCallbackLollipop;
     }
 
     public void shownoti(String name, String numbers, String type){

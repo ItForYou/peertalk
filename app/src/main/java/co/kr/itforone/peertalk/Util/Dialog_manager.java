@@ -1,7 +1,6 @@
 package co.kr.itforone.peertalk.Util;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 
 import java.util.ArrayList;
 

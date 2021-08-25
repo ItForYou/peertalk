@@ -1,6 +1,5 @@
 package co.kr.itforone.peertalk;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -51,6 +50,17 @@ public class WebviewJavainterface {
         editor.putString("id",id);
         editor.putString("pwd",password);
         editor.commit();
+    }
+
+    @JavascriptInterface
+    public void setlogout() {
+
+        // Toast.makeText(activity.getApplicationContext(),"logout",Toast.LENGTH_LONG).show();
+        SharedPreferences pref = mainActivity.getSharedPreferences("logininfo", mainActivity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.commit();
+
     }
 
 

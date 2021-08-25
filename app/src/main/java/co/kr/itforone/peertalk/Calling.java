@@ -1,23 +1,11 @@
 package co.kr.itforone.peertalk;
 
-import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.PixelFormat;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Toast;
-
-import androidx.annotation.Nullable;
 
 public class Calling extends Service {
     private WindowManager.LayoutParams mParams;  //layout params 객체. 뷰의 위치 및 크기
